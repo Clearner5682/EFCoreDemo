@@ -1,0 +1,87 @@
+{
+  "Groups": [
+    {
+      "GroupName": "系统设置",
+      "Menus": [
+        {
+          "MenuNum": "100000100",
+          "MenuName": "系统设置",
+          "MenuUrl": "/SysSetting",
+          "Actions": [
+            {
+              "ActionIndex": "1",
+              "ActionName": "查询",
+              "ActionUrl": "/SysSetting/Get"
+            },
+            {
+              "ActionIndex": "2",
+              "ActionName": "编辑",
+              "ActionUrl": "/SysSetting/Edit"
+            },
+            {
+              "ActionIndex": "3",
+              "ActionName": "删除",
+              "ActionUrl": "/SysSetting/Delete"
+            }
+          ]
+        },
+        {
+          "MenuNum": "100000200",
+          "MenuName": "角色管理",
+          "MenuUrl": "/Roles",
+          "Actions": [
+            {
+              "ActionIndex": "1",
+              "ActionName": "查询",
+              "ActionUrl": "/Roles/Get"
+            },
+            {
+              "ActionIndex": "2",
+              "ActionName": "新增",
+              "ActionUrl": "/Roles/Add"
+            },
+            {
+              "ActionIndex": "3",
+              "ActionName": "编辑",
+              "ActionUrl": "/Roles/Edit"
+            },
+            {
+              "ActionIndex": "4",
+              "ActionName": "删除",
+              "ActionUrl": "/Roles/Delete"
+            }
+          ]
+        },
+        {
+          "MenuNum": "100000300",
+          "MenuName": "通信设置",
+          "MenuUrl": "/CommunicationSetting",
+          "Actions": [
+            {
+              "ActionIndex": "1",
+              "ActionName": "查询",
+              "ActionUrl": "/CommunicationSetting/Get"
+            },
+            {
+              "ActionIndex": "2",
+              "ActionName": "编辑",
+              "ActionUrl": "/CommunicationSetting/Edit"
+            }
+          ]
+        },
+        {
+          "MenuNum": "100000400",
+          "MenuName": "日志管理",
+          "MenuUrl": "/Logs",
+          "Actions": [
+            {
+              "ActionIndex": "1",
+              "ActionName": "查询",
+              "ActionUrl": "/Logs/Get"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
