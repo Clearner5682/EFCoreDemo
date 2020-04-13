@@ -21,6 +21,9 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authorization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Hangfire;
+using Hangfire.AspNetCore;
+using Hangfire.SqlServer;
 
 namespace Web
 {
@@ -41,6 +44,9 @@ namespace Web
             services.AddSingleton(new MenuHelper(Env.ContentRootPath));
             // 添加IHttpContextAccessor
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            #region JWT认证
+
             // 添加认证服务
             services.AddAuthentication("Bearer")
                 .AddJwtBearer(configOptions => {
@@ -59,6 +65,11 @@ namespace Web
                         ValidateLifetime = true
                     };
                 });
+
+            #endregion
+
+            #region 基于策略的授权
+
             // 添加授权服务
             services.AddAuthorization(options => {
                 options.AddPolicy("AdminOrUser", builder => {
@@ -75,6 +86,11 @@ namespace Web
             });
             // 添加自定义授权的处理服务
             services.AddScoped<IAuthorizationHandler, PermissionHandler>();
+
+            #endregion
+
+            #region EFCore
+
             services.AddDbContext<MyContext>(options =>
             {
                 options
@@ -86,23 +102,55 @@ namespace Web
 
                 options.EnableSensitiveDataLogging();
             });
+
+            #endregion
+
+            // MVC
             services.AddControllers(options =>
             {
                 
             })
             .AddJsonOptions(options=> {
-                options.JsonSerializerOptions.PropertyNamingPolicy = null;
+                options.JsonSerializerOptions.PropertyNamingPolicy = null;// 序列化不改变属性名称
                 //options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             });
+
+            #region Hangfire
+
+            services.AddHangfire(configuration => {
+                configuration
+                .SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+                .UseSimpleAssemblyNameTypeSerializer()
+                .UseRecommendedSerializerSettings()
+                .UseSqlServerStorage(Configuration.GetConnectionString("Hangfire"), new SqlServerStorageOptions 
+                {
+                    CommandBatchMaxTimeout=TimeSpan.FromMinutes(5),
+                    SlidingInvisibilityTimeout=TimeSpan.FromMinutes(5),
+                    QueuePollInterval=TimeSpan.Zero,
+                    UseRecommendedIsolationLevel=true,
+                    UsePageLocksOnDequeue=true,
+                    DisableGlobalLocks=true
+                });
+            });
+
+            services.AddHangfireServer();// 注入IHostedService
+
+            #endregion
+
+            services.AddSingleton<TaskManager>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,TaskManager taskManager)
         {
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
             }
+
+            app.UseStaticFiles();
+
+            app.UseHangfireDashboard();
 
             app.UseRouting();
 
@@ -111,6 +159,8 @@ namespace Web
                 endpoints.MapControllerRoute("default", "{Controller=Home}/{Action=Index}/{id?}");
                 endpoints.MapControllerRoute("api", "api/{Controller}/{Action}/{id?}");
             });
+
+            taskManager.RegisterTasks();// 注入要执行的任务和计划
         }
 
         // 这是不带环境变量的方法
