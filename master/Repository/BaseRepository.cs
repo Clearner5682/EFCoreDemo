@@ -31,6 +31,16 @@ namespace Repository
             Context.Add(entity).SaveChanges();
         }
 
+        public void AddRange(ICollection<Entity> entities)
+        {
+            foreach(var entity in entities)
+            {
+                SetDefault(entity);
+            }
+            Context.AddRange(entities);
+            Context.SaveChanges();
+        }
+
         public void Delete(Entity entity)
         {
             Context.Remove(entity).SaveChanges();

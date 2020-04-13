@@ -9,5 +9,6 @@ namespace Web.ViewModel
     {
         public string Name { get; set; }
         public IFormFile Image { get; set; }
+        public int RecommendType { get; set; }
     }
 }

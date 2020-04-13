@@ -21,6 +21,11 @@ namespace Services
             BaseRepository.Add(entity);
         }
 
+        public void AddRange(ICollection<Entity> entities)
+        {
+            BaseRepository.AddRange(entities);
+        }
+
         public void Delete(Entity entity)
         {
             BaseRepository.Delete(entity);

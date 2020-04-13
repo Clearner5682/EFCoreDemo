@@ -4,14 +4,16 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Database.Migrations
 {
     [DbContext(typeof(MyContext))]
-    partial class MyContextModelSnapshot : ModelSnapshot
+    [Migration("20200412092952_RecommendItems表增加RecommendType字段")]
+    partial class RecommendItems表增加RecommendType字段
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -160,62 +162,6 @@ namespace Database.Migrations
                         .IsUnique();
 
                     b.ToTable("Mayor");
-                });
-
-            modelBuilder.Entity("Model.MoguGoodItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("LastUpdateTime")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("acm")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("clientUrl")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("cparam")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("img")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("itemMarks")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("itemType")
-                        .HasColumnType("int");
-
-                    b.Property<string>("link")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<decimal>("orgPrice")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<string>("title")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("tradeItemId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("type")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("useTitle")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("MoguGoodItems");
                 });
 
             modelBuilder.Entity("Model.Province", b =>

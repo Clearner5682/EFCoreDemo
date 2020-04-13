@@ -11,6 +11,8 @@
     <Compile Remove="Migrations\20200407114229_Model的继承.Designer.cs" />
     <Compile Remove="Migrations\20200407120615_Model的继承.cs" />
     <Compile Remove="Migrations\20200407120615_Model的继承.Designer.cs" />
+    <Compile Remove="Migrations\20200413082119_增加MoguGoodItem表.cs" />
+    <Compile Remove="Migrations\20200413082119_增加MoguGoodItem表.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>

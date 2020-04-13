@@ -10,6 +10,7 @@ namespace IRepository
     {
         IUnitOfWork GetUnitOfWork();
         void Add(Entity entity);
+        void AddRange(ICollection<Entity> entities);
         void Delete(Entity entity);
         void DeleteById(object id);
         void Update(Entity entity);

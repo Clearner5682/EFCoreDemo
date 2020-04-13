@@ -90,8 +90,13 @@ namespace Web.Controllers.api
             {
                 return Ok(new { ErrorCode = "9999", Message = "推荐项目的图片不能为空" });
             }
+            if (viewModel.RecommendType != 0 && viewModel.RecommendType != 1)
+            {
+                return Ok(new { ErrorCode = "9999", Message = "推荐类型错误" });
+            }
             var model = new RecommendItem();
             model.Name = viewModel.Name;
+            model.RecommendType = (EnumRecommendType)viewModel.RecommendType;
             using (Stream stream = viewModel.Image.OpenReadStream())
             {
                 model.Image = stream.ToByteArray();
@@ -103,7 +108,7 @@ namespace Web.Controllers.api
         }
 
         [HttpGet]
-        public IActionResult GetRecommendItemList(int count)
+        public IActionResult GetRecommendItemList(EnumRecommendType recommendType,int count)
         {
             //[FromBody]JsonElement data
             //int count = data.GetProperty("count").GetInt32();
@@ -120,7 +125,7 @@ namespace Web.Controllers.api
             {
                 return hostUrl + "api/Home/GetRecommendItemImage/" + Id.ToString();
             }
-            var list = _recommendItemService.SearchTop(count, o => o.Sort,true);
+            var list = _recommendItemService.SearchTop(count, o => o.Sort,true,o=>o.RecommendType==recommendType);
 
             return Ok(list.Select(o=>new { Id=o.Id,Name=o.Name,ImageUrl=GetImageUrl(o.Id),LinkUrl=o.LinkUrl}));
         }

@@ -14,5 +14,9 @@ namespace Model
         /// </summary>
         public string ImageType { get; set; }
         public string LinkUrl { get; set; }
+        /// <summary>
+        /// 推荐类型(0-推荐，1-流行)
+        /// </summary>
+        public EnumRecommendType RecommendType { get; set; }
     }
 }

@@ -100,5 +100,6 @@ namespace Database
         public DbSet<Role> Roles { get; set; }
         public DbSet<SwiperItem> SwiperItems { get; set; }
         public DbSet<RecommendItem> RecommendItems { get; set; }
+        public DbSet<MoguGoodItem> MoguGoodItems { get; set; }
     }
 }
