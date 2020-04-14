@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -19,10 +21,12 @@ namespace Web.Controllers.api
     {
         ISwiperItemService _swiperItemService;
         IRecommendItemService _recommendItemService;
-        public HomeController(ISwiperItemService swiperItemService,IRecommendItemService recommendItemService)
+        IMoguGoodItemService _moguGoodItemService;
+        public HomeController(ISwiperItemService swiperItemService,IRecommendItemService recommendItemService,IMoguGoodItemService moguGoodItemService)
         {
             _swiperItemService = swiperItemService;
             _recommendItemService = recommendItemService;
+            _moguGoodItemService = moguGoodItemService;
         }
 
         [HttpPost]
@@ -140,6 +144,40 @@ namespace Web.Controllers.api
             }
 
             return File(model.Image, model.ImageType);
+        }
+
+        [HttpGet]
+        public IActionResult GetMoguGoodItemList(int type, string sort,bool isAscending, int page,int pageSize)
+        {
+            string hostUrl = Request.Host.Value;
+            if (!hostUrl.StartsWith("http://"))
+            {
+                hostUrl = "http://" + hostUrl;
+            }
+            if (!hostUrl.EndsWith("/"))
+            {
+                hostUrl += "/";
+            }
+            string GetImageUrl(Guid Id)
+            {
+                return hostUrl + "api/Home/GetMoguGoodItemImage/" + Id.ToString();
+            }
+            int total = 0;
+            var pagedList = _moguGoodItemService.GetPagedData(type, sort,isAscending, page, pageSize, out total);
+
+            return Ok(new { ErrorCode="0",total=total,PagedList=pagedList.Select(o=>new { id=o.Id,title=o.title,price=o.price,amount=9999,imageUrl=GetImageUrl(o.Id)})});
+        }
+
+        [HttpGet]
+        public IActionResult GetMoguGoodItemImage(Guid id)
+        {
+            var model = _moguGoodItemService.GetById(id);
+            if (model == null)
+            {
+                return Ok(new { ErrorCode = "9999", Message = "获取商品数据失败" });
+            }
+
+            return File(model.Image, "image/jpg");
         }
     }
 }

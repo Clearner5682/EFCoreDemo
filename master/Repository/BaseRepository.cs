@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.Linq.Expressions;
 using Model;
 using Database;
 using IRepository;
-using System.Linq.Expressions;
+using Utils;
 
 namespace Repository
 {
@@ -68,7 +69,18 @@ namespace Repository
 
         public void Update(Entity entity)
         {
+            UpdateDefault(entity);
             Context.Update(entity).SaveChanges();
+        }
+
+        public void UpdateRange(ICollection<Entity> entities)
+        {
+            foreach(var entity in entities)
+            {
+                UpdateDefault(entity);
+            }
+            Context.UpdateRange(entities);
+            Context.SaveChanges();
         }
 
         private void SetDefault(Entity entity)
@@ -88,6 +100,16 @@ namespace Repository
             entity.Id = Guid.NewGuid();
         }
 
+        private void UpdateDefault(Entity entity)
+        {
+            var now = DateTime.Now;
+            if (entity is SetBase)
+            {
+                SetBase setBase = entity as SetBase;
+                setBase.LastUpdateTime = now;
+            }
+        }
+
         public IList<Entity> SearchTop<EntityKey>(int count, Expression<Func<Entity, EntityKey>> keySelector, bool isAscending, Expression<Func<Entity, bool>> predicate = null)
         {
             IQueryable<Entity> query = Context.Set<Entity>();
@@ -105,6 +127,25 @@ namespace Repository
             }
 
             return query.Take(count).ToList();
+        }
+
+        public IList<Entity> SearchPage(string sort,bool isAscending, int page, int pageSize,out int total, Expression<Func<Entity, bool>> predicate = null)
+        {
+            total = 0;
+            IQueryable<Entity> queryCount = Context.Set<Entity>();
+            IQueryable<Entity> query = Context.Set<Entity>();
+            if (predicate != null)
+            {
+                queryCount = queryCount.Where(predicate);
+                query = query.Where(predicate);
+            }
+            if (!string.IsNullOrWhiteSpace(sort))
+            {
+                query = query.OrderBy<Entity>(sort, isAscending);
+            }
+            total = queryCount.Count();
+
+            return query.Skip(page*pageSize).Take(pageSize).ToList();
         }
     }
 }

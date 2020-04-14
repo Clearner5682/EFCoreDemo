@@ -34,6 +34,9 @@ namespace Model
         /// 价格
         /// </summary>
         public decimal price { get; set; }
-
+        /// <summary>
+        /// 照片数据
+        /// </summary>
+        public byte[] Image { get; set; }
     }
 }

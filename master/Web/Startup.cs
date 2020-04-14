@@ -97,6 +97,9 @@ namespace Web
                 .UseSqlServer(Configuration.GetConnectionString("SqlServer"), sqlServerOptions =>
                 {
                     sqlServerOptions.MaxBatchSize(1_0000);// 批量执行SQL语句的最大数量
+                    // 使用ROWNUM分页，因为SQLSERVER 2012以下不支持Fetch Next
+                    // 从3.0开始已经移除
+                    //sqlServerOptions.UseRowNumberForPaging();
                 })
                 .UseLazyLoadingProxies();// 启用延迟加载
 

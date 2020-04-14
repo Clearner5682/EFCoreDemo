@@ -51,9 +51,19 @@ namespace Services
             BaseRepository.Update(entity);
         }
 
+        public void UpdateRange(ICollection<Entity> entities)
+        {
+            BaseRepository.UpdateRange(entities);
+        }
+
         public IList<Entity> SearchTop<EntityKey>(int count, Expression<Func<Entity, EntityKey>> keySelector,bool isAscending, Expression<Func<Entity, bool>> predicate=null)
         {
             return BaseRepository.SearchTop(count, keySelector,isAscending,predicate);
+        }
+
+        public IList<Entity> SearchPage(string sort, bool isAscending, int page, int pageSize,out int total, Expression<Func<Entity, bool>> predicate = null)
+        {
+            return BaseRepository.SearchPage(sort, isAscending, page, pageSize, out total,predicate);
         }
     }
 }
