@@ -9,7 +9,8 @@ using Model;
 using IRepository;
 using IServices;
 using Utils;
-
+using Microsoft.Data.SqlClient;
+using System.Linq;
 
 namespace Services
 {
@@ -45,12 +46,35 @@ namespace Services
 
         public IList<MoguGoodItem> GetPagedData(int type, string sort,bool isAscending, int page,int pageSize,out int total)
         {
-            return _baseRepository.SearchPage(sort
-                , true
-                , page
-                , pageSize
-                , out total
-                , o => o.type == type);
+            string countSql = @$"select count(1) from MoguGoodItems a where a.Type={type}";
+            total = _baseRepository.SqlQuery<int>(countSql).Sum(o=>o);
+            string orderby = "Order By " + sort;
+            if (isAscending)
+            {
+                orderby += " asc";
+            }
+            else
+            {
+                orderby += " desc";
+            }
+            string sql = @$"select Id,title,price from
+                        (
+                        select ROW_NUMBER() OVER({orderby}) as RowIndex,
+                        a.Id,
+                        a.title,
+                        a.price
+                        from MoguGoodItems a
+                        where a.Type=@Type
+                        )T
+                        where T.RowIndex>@StartRowIndex and T.RowIndex<=@EndRowIndex";
+            SqlParameter[] parameters = new SqlParameter[] 
+            { 
+                new SqlParameter { ParameterName="Type",Value=type },
+                new SqlParameter { ParameterName="StartRowIndex",Value=(page-1)*pageSize },
+                new SqlParameter { ParameterName = "EndRowIndex", Value = page * pageSize } 
+            };
+
+            return _baseRepository.SqlQuery<MoguGoodItem>(sql,parameters);
         }
     }
 }

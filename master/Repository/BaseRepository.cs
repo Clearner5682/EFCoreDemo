@@ -7,6 +7,10 @@ using Model;
 using Database;
 using IRepository;
 using Utils;
+using System.Collections;
+using Microsoft.EntityFrameworkCore;
+using System.Data;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace Repository
 {
@@ -34,7 +38,7 @@ namespace Repository
 
         public void AddRange(ICollection<Entity> entities)
         {
-            foreach(var entity in entities)
+            foreach (var entity in entities)
             {
                 SetDefault(entity);
             }
@@ -75,7 +79,7 @@ namespace Repository
 
         public void UpdateRange(ICollection<Entity> entities)
         {
-            foreach(var entity in entities)
+            foreach (var entity in entities)
             {
                 UpdateDefault(entity);
             }
@@ -129,7 +133,7 @@ namespace Repository
             return query.Take(count).ToList();
         }
 
-        public IList<Entity> SearchPage(string sort,bool isAscending, int page, int pageSize,out int total, Expression<Func<Entity, bool>> predicate = null)
+        public IList<Entity> SearchPage(string sort, bool isAscending, int page, int pageSize, out int total, Expression<Func<Entity, bool>> predicate = null)
         {
             total = 0;
             IQueryable<Entity> queryCount = Context.Set<Entity>();
@@ -145,7 +149,48 @@ namespace Repository
             }
             total = queryCount.Count();
 
-            return query.Skip(page*pageSize).Take(pageSize).ToList();
+            return query.Skip(page * pageSize).Take(pageSize).ToList();
+        }
+
+        // 执行原生SQL，返回实体类型集合
+        public IList<Entity> ExecuteRawSql(string sql, object[] parameters)
+        {
+            return Context.Set<Entity>().FromSqlRaw(sql, parameters).ToList();
+        }
+
+        // 执行原生SQL，返回影响的行数
+        public int ExecuteSqlCommand(string sql, object[] parameters)
+        {
+            return Context.Database.ExecuteSqlRaw(sql, parameters);
+        }
+
+        // 执行原生SQL，返回泛型类型集合
+        public IList<T> SqlQuery<T>(string sql, params object[] parameters)
+        {
+            DataTable dt = new DataTable();
+            // ***注意，这里不能Dispose连接，否则Context就用不了了***
+            var connection = Context.Database.GetDbConnection();
+            try
+            {
+                connection.Open();
+                using (var command = connection.CreateCommand())
+                {
+                    command.CommandText = sql;
+                    if (parameters != null && parameters.Length > 0)
+                    {
+                        command.Parameters.AddRange(parameters);
+                    }
+                    var dataReader = command.ExecuteReader();
+                    dt.Load(dataReader);
+                }
+                connection.Close();
+            }
+            finally
+            {
+                connection.Close();// 只能关闭连接，不能释放，否则Context就用不了了
+            }
+
+            return dt.ToList<T>();
         }
     }
 }

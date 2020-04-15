@@ -19,5 +19,8 @@ namespace IRepository
         IList<Entity> GetAll();
         IList<Entity> SearchTop<EntityKey>(int count, Expression<Func<Entity, EntityKey>> keySelector,bool isAscending, Expression<Func<Entity, bool>> predicate=null);
         IList<Entity> SearchPage(string sort,bool isAscending, int page, int pageSize,out int total, Expression<Func<Entity, bool>> predicate = null);
+        IList<Entity> ExecuteRawSql(string sql, object[] parameters);
+        int ExecuteSqlCommand(string sql, object[] parameters);
+        IList<T> SqlQuery<T>(string sql,params object[] parameters);
     }
 }
