@@ -11,14 +11,7 @@
     "Web": {
       "commandName": "Project",
       "launchBrowser": false,
-      "applicationUrl": "http://192.168.0.107:5000",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": false,
+      "applicationUrl": "http://192.168.0.112:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }

@@ -24,6 +24,10 @@ using System.Text.Json.Serialization;
 using Hangfire;
 using Hangfire.AspNetCore;
 using Hangfire.SqlServer;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Web.Filters;
+using Microsoft.AspNetCore.Diagnostics;
+using Web.Exceptions;
 
 namespace Web
 {
@@ -111,7 +115,7 @@ namespace Web
             // MVC
             services.AddControllers(options =>
             {
-                
+                options.Filters.Add(typeof(CustomAuthorizeFilter));
             })
             .AddJsonOptions(options=> {
                 options.JsonSerializerOptions.PropertyNamingPolicy = null;// 序列化不改变属性名称
@@ -146,16 +150,36 @@ namespace Web
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env,TaskManager taskManager)
         {
-            if (env.IsDevelopment())
+            #region 异常处理中间件
+            //if (env.IsDevelopment())
+            //{
+            //    app.UseDeveloperExceptionPage();
+            //}
+            app.UseExceptionHandler(new ExceptionHandlerOptions
             {
-                app.UseDeveloperExceptionPage();
-            }
+                ExceptionHandler = async (context) => {
+                    await Task.Run(() => {
+                        var exceptionHandlerPathFeature = context.Features.Get<IExceptionHandlerPathFeature>();
+                        if (exceptionHandlerPathFeature.Error is UnAuthorizedException)
+                        {
+                            context.Response.StatusCode = 401;
+                            return;
+                        }
+
+                        context.Response.WriteAsync(exceptionHandlerPathFeature.Error.Message);
+                    });
+                }
+            });
+            #endregion
 
             app.UseStaticFiles();
 
             app.UseHangfireDashboard();
 
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

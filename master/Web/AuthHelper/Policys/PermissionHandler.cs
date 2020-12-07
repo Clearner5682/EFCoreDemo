@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Utils;
 using Model.DTO;
+using Web.Exceptions;
 
 namespace Web
 {
@@ -22,7 +23,13 @@ namespace Web
         {
             if (context.User == null)
             {
-                throw new Exception("请先登录");
+                //throw new Exception("请先登录");
+                throw new UnAuthorizedException();
+            }
+            if (!context.User.Identity.IsAuthenticated)
+            {
+                //throw new Exception("请先登录");
+                throw new UnAuthorizedException();
             }
             var userId = context.User.Claims.First(o => o.Type == "UserId").Value;
             // 可以根据userId去数据库找该userId对应的角色

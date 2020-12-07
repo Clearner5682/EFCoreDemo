@@ -10,6 +10,7 @@ using Autofac;
 using Autofac.Core;
 using Database;
 using Model;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Web.Controllers
 {
