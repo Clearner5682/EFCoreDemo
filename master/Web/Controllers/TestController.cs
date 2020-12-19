@@ -11,6 +11,8 @@ using Autofac.Core;
 using Database;
 using Model;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
 
 namespace Web.Controllers
 {
@@ -45,8 +47,16 @@ namespace Web.Controllers
         }
 
         [HttpGet]
-        public IActionResult Index()
+        //[Authorize(Policy = "MyPolicy")]
+        //[Authorize]
+        public void Index()
         {
+            var endpoint = this.HttpContext.GetEndpoint();
+            var requestDelegate = endpoint?.RequestDelegate;
+            if (requestDelegate != null)
+            {
+
+            }
             Console.WriteLine($"dependencyService1==dependencyService1?{_dependencyService1 == _dependencyService2}");
             _textWriter.Write("hello");
             Console.WriteLine(_textWriter.ToString());
@@ -54,7 +64,9 @@ namespace Web.Controllers
             _strRepository.Get();
             _intRepository.Get();
 
-            return Ok(Request.Path);
+            this.Response.WriteAsync("IndexEnd\r\n");
+
+            //return Ok(Request.Path);
         }
 
         [HttpGet]

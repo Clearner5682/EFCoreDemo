@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,9 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Web.Filters;
 using Microsoft.AspNetCore.Diagnostics;
 using Web.Exceptions;
+using Microsoft.AspNetCore.Http.Features;
+using Web.Middlewares;
+using Newtonsoft.Json;
 
 namespace Web
 {
@@ -35,6 +39,7 @@ namespace Web
     {
         IConfiguration Configuration;
         IWebHostEnvironment Env;
+
         public Startup(IConfiguration configuration, IWebHostEnvironment env)
         {
             Configuration = configuration;
@@ -115,7 +120,10 @@ namespace Web
             // MVC
             services.AddControllers(options =>
             {
-                options.Filters.Add(typeof(CustomAuthorizeFilter));
+                //options.Filters.Add(typeof(CustomAuthorizeFilter));
+                //options.Filters.Add(new CustomAuthorizeFilter());
+                //options.Filters.Add<CustomAuthorizeFilter>();
+                //options.Filters.Add<CustomAuthorizeFilter2>();
             })
             .AddJsonOptions(options=> {
                 options.JsonSerializerOptions.PropertyNamingPolicy = null;// 序列化不改变属性名称
@@ -172,6 +180,42 @@ namespace Web
             });
             #endregion
 
+            #region MiddlewareTest
+
+            app.Use(async (context, next) =>
+            {
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.ContentType = "text/html;charset=utf-8";
+                    context.Response.OnStarting(async () => {
+                        await Task.Run(() => {
+                            if (!context.Response.HasStarted)
+                            {
+                                context.Response.Headers.Add("Test1", "Test1");
+                            }
+                        });
+                    });
+                }
+                await context.Response.WriteAsync("Middleware1Start\r\n");
+                await next.Invoke();
+                await context.Response.WriteAsync("Middleware1End\r\n");
+            });
+
+            app.Use(next => {
+                return async context => {
+                    await context.Response.WriteAsync("Middleware2Start\r\n");
+                    await next(context);
+                    await context.Response.WriteAsync("Middleware2End\r\n");
+                };
+            });
+
+            //app.Run(async context =>
+            //{
+            //    await context.Response.WriteAsync(JsonConvert.SerializeObject(new { Result = "Middleware3End" }));
+            //});
+
+            #endregion
+
             app.UseStaticFiles();
 
             app.UseHangfireDashboard();
@@ -179,6 +223,7 @@ namespace Web
             app.UseRouting();
 
             app.UseAuthentication();
+            app.UseMiddleware<CustomMiddleware>();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

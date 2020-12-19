@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Http;
 using Utils;
 using Model.DTO;
 using Web.Exceptions;
+using System.Security.Claims;
 
 namespace Web
 {
@@ -21,17 +22,17 @@ namespace Web
 
         protected override Task HandleRequirementAsync(AuthorizationHandlerContext context, PermissionRequirement requirement)
         {
-            if (context.User == null)
-            {
-                //throw new Exception("请先登录");
-                throw new UnAuthorizedException();
-            }
-            if (!context.User.Identity.IsAuthenticated)
-            {
-                //throw new Exception("请先登录");
-                throw new UnAuthorizedException();
-            }
-            var userId = context.User.Claims.First(o => o.Type == "UserId").Value;
+            //if (context.User == null)
+            //{
+            //    //throw new Exception("请先登录");
+            //    throw new UnAuthorizedException();
+            //}
+            //if (!context.User.Identity.IsAuthenticated)
+            //{
+            //    //throw new Exception("请先登录");
+            //    throw new UnAuthorizedException();
+            //}
+            Claim userId = context.User.Claims.FirstOrDefault(o => o.Type == "UserId");
             // 可以根据userId去数据库找该userId对应的角色
             // 可以根据角色去找该角色对应的菜单权限
             // 这里只是简单的模拟一下允许特定的UserId访问该Policy保护的资源
