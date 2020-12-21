@@ -130,6 +130,14 @@ namespace Web
                 //options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
             });
 
+            // Session
+            //services.AddDistributedMemoryCache();
+            services.AddDistributedRedisCache(options=> {
+                options.Configuration = Configuration["RedisCacheUrl"];
+            });
+            services.AddSession(options=> {
+            });
+
             #region Hangfire
 
             services.AddHangfire(configuration => {
@@ -182,32 +190,32 @@ namespace Web
 
             #region MiddlewareTest
 
-            app.Use(async (context, next) =>
-            {
-                if (!context.Response.HasStarted)
-                {
-                    context.Response.ContentType = "text/html;charset=utf-8";
-                    context.Response.OnStarting(async () => {
-                        await Task.Run(() => {
-                            if (!context.Response.HasStarted)
-                            {
-                                context.Response.Headers.Add("Test1", "Test1");
-                            }
-                        });
-                    });
-                }
-                await context.Response.WriteAsync("Middleware1Start\r\n");
-                await next.Invoke();
-                await context.Response.WriteAsync("Middleware1End\r\n");
-            });
+            //app.Use(async (context, next) =>
+            //{
+            //    if (!context.Response.HasStarted)
+            //    {
+            //        context.Response.ContentType = "text/html;charset=utf-8";
+            //        context.Response.OnStarting(async () => {
+            //            await Task.Run(() => {
+            //                if (!context.Response.HasStarted)
+            //                {
+            //                    context.Response.Headers.Add("Test1", "Test1");
+            //                }
+            //            });
+            //        });
+            //    }
+            //    await context.Response.WriteAsync("Middleware1Start\r\n");
+            //    await next.Invoke();
+            //    await context.Response.WriteAsync("Middleware1End\r\n");
+            //});
 
-            app.Use(next => {
-                return async context => {
-                    await context.Response.WriteAsync("Middleware2Start\r\n");
-                    await next(context);
-                    await context.Response.WriteAsync("Middleware2End\r\n");
-                };
-            });
+            //app.Use(next => {
+            //    return async context => {
+            //        await context.Response.WriteAsync("Middleware2Start\r\n");
+            //        await next(context);
+            //        await context.Response.WriteAsync("Middleware2End\r\n");
+            //    };
+            //});
 
             //app.Run(async context =>
             //{
@@ -217,6 +225,9 @@ namespace Web
             #endregion
 
             app.UseStaticFiles();
+
+            //app.UseSession();
+            app.UseMiddleware<CustomSessionMiddleware>();
 
             app.UseHangfireDashboard();
 
