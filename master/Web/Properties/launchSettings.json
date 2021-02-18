@@ -1,4 +1,4 @@
-﻿{
+{
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
@@ -10,11 +10,12 @@
   "profiles": {
     "Web": {
       "commandName": "Project",
-      "launchBrowser": false,
-      "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
+        "ASPNETCORE_Kestrel__Certificates__Default__Path": "E:\\Net之美\\NetCore\\EFCoreDemo\\master\\Web\\bin\\Debug\\netcoreapp3.1\\server.pfx",
+        "ASPNETCORE_Kestrel__Certificates__Default__Password": "123456",
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "applicationUrl": "http://localhost:5000;https://localhost:443"
     }
   }
 }

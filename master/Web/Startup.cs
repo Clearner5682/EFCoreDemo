@@ -131,10 +131,10 @@ namespace Web
             });
 
             // Session
-            //services.AddDistributedMemoryCache();
-            services.AddDistributedRedisCache(options=> {
-                options.Configuration = Configuration["RedisCacheUrl"];
-            });
+            services.AddDistributedMemoryCache();
+            //services.AddDistributedRedisCache(options=> {
+            //    options.Configuration = Configuration["RedisCacheUrl"];
+            //});
             services.AddSession(options=> {
             });
 
@@ -224,10 +224,16 @@ namespace Web
 
             #endregion
 
+            #region HTTPS÷ÿ∂®œÚ
+
+            app.UseHttpsRedirection();
+
+            #endregion
+
             app.UseStaticFiles();
 
-            //app.UseSession();
-            app.UseMiddleware<CustomSessionMiddleware>();
+            app.UseSession();
+            //app.UseMiddleware<CustomSessionMiddleware>();
 
             app.UseHangfireDashboard();
 
